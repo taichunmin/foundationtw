@@ -1,9 +1,26 @@
-twfoundation
+foundationtw
 ============
 
-crawler to get twfoundation data
-use crawler.php to get every single foundation's name and detial url
-then write in the csv file
+Data from
+---------
+- http://cdcb.judicial.gov.tw/abbs/wkw/WHD6K00.jsp
 
-use read_file.php to read csv file and get detail data from detail url
-then store in the detail_csv file
+License of data
+---------
+Unknown, use for your own risk.
+
+License of code
+---------
+GNU AGPL v3, please read LICENSE first
+
+License of library
+---------
+Pleases read lib/LICENSE.txt for more info.
+
+Some more reference
+---------
+- http://law.moj.gov.tw/LawClass/LawContent.aspx?PCODE=B0010017
+- http://glrs.moi.gov.tw/LawContentDetails.aspx?id=FL043240&KeyWordHL=&StyleType=1
+- http://glrs.moi.gov.tw/LawContentDetails.aspx?id=FL002651
+- https://techsoup-taiwan.org.tw/node/881
+- https://techsoup-taiwan.org.tw/node/594
