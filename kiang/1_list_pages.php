@@ -1,4 +1,5 @@
 <?php
+
 $rootPath = dirname(__DIR__);
 require_once "{$rootPath}/lib/LIB_http.php";
 require_once "{$rootPath}/lib/LIB_parse.php";
@@ -89,6 +90,7 @@ foreach ($all_court as $court) {
                     $cols[$k] = trim(strip_tags($v));
                 }
                 $headers = $cols;
+                $headers[10] = '檔案位置';
                 if (false === $headersWritten) {
                     fputcsv($fh, $headers);
                     $headersWritten = true;
@@ -97,11 +99,20 @@ foreach ($all_court as $court) {
             } else {
                 if (count($cols) === $countHeaders) {
                     foreach ($cols AS $k => $v) {
-                        if ($k !== 9) {
-                            $cols[$k] = trim(strip_tags($v));
-                        } else {
-                            $vPos = strpos($v, 'WHD6K05.jsp');
-                            $cols[$k] = 'http://cdcb.judicial.gov.tw/abbs/wkw/' . substr($v, $vPos, strpos($v, '"', $vPos) - $vPos);
+                        switch ($k) {
+                            case 9:
+                                $vPos = strpos($v, 'WHD6K05.jsp');
+                                $cols[$k] = 'http://cdcb.judicial.gov.tw/abbs/wkw/' . substr($v, $vPos, strpos($v, '"', $vPos) - $vPos);
+                                break;
+                            case 10:
+                                $pos = strpos($cols[9], '?') + 1;
+                                $posEnd = strpos($cols[9], '&');
+                                $cols[10] = substr($cols[9], $pos + 3, $posEnd - $pos - 3);
+                                $prefix = substr($cols[10], -3);
+                                $cols[10] = "output/details/{$courtVals[0]}/{$prefix}/{$cols[10]}";
+                                break;
+                            default:
+                                $cols[$k] = trim(strip_tags($v));
                         }
                     }
                     fputcsv($fh, $cols);

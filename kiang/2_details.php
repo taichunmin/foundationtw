@@ -14,7 +14,7 @@ foreach (glob("{$rootPath}/output/lists/*.csv") AS $csvFile) {
         $record = array();
         echo "processing {$pInfo['filename']}/{$recordId}\n";
         $recordPathPrefix = substr($recordId, -3);
-        $recordPath = "{$outputPath}/details/{$recordPathPrefix}";
+        $recordPath = "{$outputPath}/{$pInfo['filename']}/{$recordPathPrefix}";
         $recordFile = "{$recordPath}/{$recordId}.json";
         if (!file_exists($recordFile)) {
             if (!file_exists($recordPath)) {
@@ -60,8 +60,8 @@ foreach (glob("{$rootPath}/output/lists/*.csv") AS $csvFile) {
                         foreach ($tLines AS $tLine) {
                             $tCols = explode('</td>', $tLine);
                             if (count($tCols) === 4) {
-                                $tCols[1] = str_replace(' ', '', trim(strip_tags($tCols[1])));
-                                $tCols[2] = str_replace(' ', '', trim(strip_tags($tCols[2])));
+                                $tCols[1] = str_replace(array(' ', '　'), '', trim(strip_tags($tCols[1])));
+                                $tCols[2] = str_replace(array(' ', '　'), '', trim(strip_tags($tCols[2])));
                                 $record['董監事'][] = array(
                                     $tCols[1], $tCols[2]
                                 );
