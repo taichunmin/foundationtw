@@ -109,7 +109,7 @@ foreach ($all_court as $court) {
                                 $posEnd = strpos($cols[9], '&');
                                 $cols[10] = substr($cols[9], $pos + 3, $posEnd - $pos - 3);
                                 $prefix = substr($cols[10], -3);
-                                $cols[10] = "output/details/{$courtVals[0]}/{$prefix}/{$cols[10]}";
+                                $cols[10] = "output/details/{$courtVals[0]}/{$prefix}/{$cols[10]}.json";
                                 break;
                             default:
                                 $cols[$k] = trim(strip_tags($v));
