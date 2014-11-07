@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 $rootPath = dirname(__DIR__);
 require_once "{$rootPath}/lib/LIB_http.php";
