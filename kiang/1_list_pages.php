@@ -3,6 +3,10 @@
 $rootPath = dirname(__DIR__);
 require_once "{$rootPath}/lib/LIB_http.php";
 require_once "{$rootPath}/lib/LIB_parse.php";
+$outputPath = "{$rootPath}/output/lists";
+if (!file_exists($outputPath)) {
+    mkdir($outputPath, 0777, true);
+}
 
 $all_court = array(
     'TPD&臺灣台北地方法院',
@@ -55,6 +59,8 @@ foreach ($all_court as $court) {
     }
     $data = $dataBase;
     $data['court'] = mb_convert_encoding($court, 'big5', 'utf8');
+    $fh = fopen("{$outputPath}/{$courtVals[0]}.csv", 'w');
+    $headersWritten = false;
     for (; $data['pageNow'] <= $data['pageTotal']; $data['pageNow'] ++) {
         $cachedFile = "{$rootPath}/tmp/{$courtVals[0]}/page_{$data['pageNow']}";
 
@@ -70,10 +76,43 @@ foreach ($all_court as $court) {
                 $pos += 24;
                 $data['pageTotal'] = substr($page['FILE'], $pos, strpos($page['FILE'], '"', $pos) - $pos);
             }
-            $page['FILE'];
         }
-        if($data['pageNow'] % 50 === 0) {
+        $pos = strpos($page['FILE'], '<td width="6%" class="head">');
+        $posEnd = strpos($page['FILE'], '</table>', $pos);
+        $page['FILE'] = substr($page['FILE'], $pos, $posEnd - $pos);
+        $lines = explode('</tr>', $page['FILE']);
+        $headers = $countHeaders = false;
+        foreach ($lines AS $line) {
+            $line = str_replace(array('&nbsp;', ' '), array('', ''), $line);
+            $cols = explode('</td>', $line);
+            if (false === $headers) {
+                foreach ($cols AS $k => $v) {
+                    $cols[$k] = trim(strip_tags($v));
+                }
+                $headers = $cols;
+                if (false === $headersWritten) {
+                    fputcsv($fh, $headers);
+                    $headersWritten = true;
+                }
+                $countHeaders = count($headers);
+            } else {
+                if (count($cols) === $countHeaders) {
+                    foreach ($cols AS $k => $v) {
+                        if ($k !== 9) {
+                            $cols[$k] = trim(strip_tags($v));
+                        } else {
+                            $vPos = strpos($v, 'WHD6K05.jsp');
+                            $cols[$k] = 'http://cdcb.judicial.gov.tw/abbs/wkw/' . substr($v, $vPos, strpos($v, '"', $vPos) - $vPos);
+                        }
+                    }
+                    fputcsv($fh, $cols);
+                }
+            }
+        }
+
+        if ($data['pageNow'] % 50 === 0) {
             echo "processing {$court} page {$data['pageNow']}+\n";
         }
     }
+    fclose($fh);
 }
