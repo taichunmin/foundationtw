@@ -2,7 +2,7 @@
 
 $rootPath = dirname(__DIR__);
 require_once "{$rootPath}/lib/LIB_http.php";
-require_once "{$rootPath}/lib/LIB_parse.php";
+include_once $rootPath . '/lib/cns11643/scripts/big5e_to_utf8.php';
 $outputPath = "{$rootPath}/output/lists";
 if (!file_exists($outputPath)) {
     mkdir($outputPath, 0777, true);
@@ -52,6 +52,12 @@ $dataBase = array(
     'pageNow' => 1,
 );
 
+$big5Errors = array(
+    'big5e' => array(),
+    'cns11643' => array(),
+);
+global $big5Errors;
+
 foreach ($all_court as $court) {
     $courtVals = explode('&', $court);
     if (!file_exists("{$rootPath}/tmp/{$courtVals[0]}")) {
@@ -66,10 +72,9 @@ foreach ($all_court as $court) {
 
         if (!file_exists($cachedFile)) {
             $response = http($action, $ref, $method, $data, EXCL_HEAD);
-            $response['FILE'] = mb_convert_encoding($response['FILE'], 'utf8', 'big5');
-            file_put_contents($cachedFile, json_encode($response));
+            file_put_contents($cachedFile, serialize($response));
         }
-        $page = json_decode(file_get_contents($cachedFile), true);
+        $page = unserialize(file_get_contents($cachedFile));
         if ($data['pageNow'] === 1) {
             $pos = strrpos($page['FILE'], 'name="pageTotal" value="');
             if (false !== $pos) {
@@ -83,7 +88,8 @@ foreach ($all_court as $court) {
         $lines = explode('</tr>', $page['FILE']);
         $headers = $countHeaders = false;
         foreach ($lines AS $line) {
-            $line = str_replace(array('&nbsp;', ' '), array('', ''), $line);
+            $line = Converter::iconv($line, 1);
+            $line = str_replace(array(' ', '&nbsp;'), array(''), $line);
             $cols = explode('</td>', $line);
             if (false === $headers) {
                 foreach ($cols AS $k => $v) {
@@ -91,11 +97,14 @@ foreach ($all_court as $court) {
                 }
                 $headers = $cols;
                 $headers[10] = '檔案位置';
+                $headers[11] = 'ID';
+                $headers[12] = '法院代碼';
+                $headers[13] = 'page #';
                 if (false === $headersWritten) {
                     fputcsv($fh, $headers);
                     $headersWritten = true;
                 }
-                $countHeaders = count($headers);
+                $countHeaders = count($headers) - 3;
             } else {
                 if (count($cols) === $countHeaders) {
                     foreach ($cols AS $k => $v) {
@@ -109,6 +118,9 @@ foreach ($all_court as $court) {
                                 $posEnd = strpos($cols[9], '&');
                                 $cols[10] = substr($cols[9], $pos + 3, $posEnd - $pos - 3);
                                 $prefix = substr($cols[10], -3);
+                                $cols[11] = $cols[10];
+                                $cols[12] = $courtVals[0];
+                                $cols[13] = $data['pageNow'];
                                 $cols[10] = "output/details/{$courtVals[0]}/{$prefix}/{$cols[10]}.json";
                                 break;
                             default:
@@ -120,9 +132,10 @@ foreach ($all_court as $court) {
             }
         }
 
-        if ($data['pageNow'] % 50 === 0) {
+        if ($data['pageNow'] % 10 === 0) {
             echo "processing {$court} page {$data['pageNow']}+\n";
         }
     }
     fclose($fh);
 }
+print_r($big5Errors);

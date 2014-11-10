@@ -1,6 +1,7 @@
 <?php
 
 $rootPath = dirname(__DIR__);
+include_once $rootPath . '/lib/cns11643/scripts/big5e_to_utf8.php';
 $outputPath = "{$rootPath}/output/details";
 
 foreach (glob("{$rootPath}/output/lists/*.csv") AS $csvFile) {
@@ -31,9 +32,10 @@ foreach (glob("{$rootPath}/output/lists/*.csv") AS $csvFile) {
                     mkdir($tmpPath, 0777, true);
                 }
                 if (!file_exists("{$tmpPath}/{$recordId}")) {
-                    file_put_contents("{$tmpPath}/{$recordId}", mb_convert_encoding(file_get_contents($url), 'utf8', 'big5'));
+                    file_put_contents("{$tmpPath}/{$recordId}", file_get_contents($url));
                 }
                 $page = file_get_contents("{$tmpPath}/{$recordId}");
+                $page = Converter::iconv($page, 1);
                 switch ($fKey) {
                     case 'data':
                         $pos = strpos($page, '<td width="8%" class="head">') + 28;
