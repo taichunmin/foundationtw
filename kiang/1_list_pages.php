@@ -1,5 +1,7 @@
 <?php
-
+/*
+ * @todo: custom map from https://github.com/dankogai/p5-encode/blob/master/ucm/cp950.ucm
+ */
 $rootPath = dirname(__DIR__);
 require_once "{$rootPath}/lib/LIB_http.php";
 include_once $rootPath . '/lib/cns11643/scripts/big5e_to_utf8.php';

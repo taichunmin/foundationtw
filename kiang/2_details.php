@@ -85,6 +85,14 @@ foreach (glob("{$rootPath}/output/lists/*.csv") AS $csvFile) {
                         break;
                 }
             }
+
+            file_put_contents($recordFile, json_encode($record, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        } else {
+            $record = json_decode(file_get_contents($recordFile), true);
+        }
+        if (!isset($record['latitude'])) {
+            $record['latitude'] = '';
+            $record['longitude'] = '';
             file_put_contents($recordFile, json_encode($record, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
         }
     }
