@@ -24,3 +24,8 @@ Some more reference
 - http://glrs.moi.gov.tw/LawContentDetails.aspx?id=FL002651
 - https://techsoup-taiwan.org.tw/node/881
 - https://techsoup-taiwan.org.tw/node/594
+
+Notes
+---------
+- output/all_detail.csv was created using crawler.php
+- output/lists/ and output/details/ were created using scripts in kiang/
