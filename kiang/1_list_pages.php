@@ -1,4 +1,5 @@
 <?php
+
 /*
  * @todo: custom map from https://github.com/dankogai/p5-encode/blob/master/ucm/cp950.ucm
  */
@@ -101,12 +102,11 @@ foreach ($all_court as $court) {
                 $headers[10] = '檔案位置';
                 $headers[11] = 'ID';
                 $headers[12] = '法院代碼';
-                $headers[13] = 'page #';
                 if (false === $headersWritten) {
                     fputcsv($fh, $headers);
                     $headersWritten = true;
                 }
-                $countHeaders = count($headers) - 3;
+                $countHeaders = count($headers) - 2;
             } else {
                 if (count($cols) === $countHeaders) {
                     foreach ($cols AS $k => $v) {
@@ -122,7 +122,6 @@ foreach ($all_court as $court) {
                                 $prefix = substr($cols[10], -3);
                                 $cols[11] = $cols[10];
                                 $cols[12] = $courtVals[0];
-                                $cols[13] = $data['pageNow'];
                                 $cols[10] = "output/details/{$courtVals[0]}/{$prefix}/{$cols[10]}.json";
                                 break;
                             default:
