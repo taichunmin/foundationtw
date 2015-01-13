@@ -34,6 +34,9 @@ foreach (glob("{$rootPath}/output/lists/*.csv") AS $csvFile) {
                 if (!file_exists("{$tmpPath}/{$recordId}")) {
                     file_put_contents("{$tmpPath}/{$recordId}", file_get_contents($url));
                 }
+                if(filesize("{$tmpPath}/{$recordId}") <= 0) {
+                    unlink("{$tmpPath}/{$recordId}"); continue;
+                }
                 $page = file_get_contents("{$tmpPath}/{$recordId}");
                 $page = Converter::iconv($page, 1);
                 switch ($fKey) {
