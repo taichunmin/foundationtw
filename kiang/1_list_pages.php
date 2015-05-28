@@ -116,13 +116,12 @@ foreach ($all_court as $court) {
                                 $cols[$k] = 'http://cdcb.judicial.gov.tw/abbs/wkw/' . substr($v, $vPos, strpos($v, '"', $vPos) - $vPos);
                                 break;
                             case 10:
-                                $pos = strpos($cols[9], '?') + 1;
-                                $posEnd = strpos($cols[9], '&');
-                                $cols[10] = substr($cols[9], $pos + 3, $posEnd - $pos - 3);
-                                $prefix = substr($cols[10], -3);
-                                $cols[11] = $cols[10];
+                                $urlParts = parse_url($cols[9]);
+                                parse_str($urlParts['query'], $queryParts);
+                                $recordId = str_replace('/', '-', $queryParts['ab']);
+                                $cols[11] = $queryParts['ab'];
                                 $cols[12] = $courtVals[0];
-                                $cols[10] = "output/details/{$courtVals[0]}/{$prefix}/{$cols[10]}.json";
+                                $cols[10] = "output/details/{$queryParts['ef']}/{$queryParts['bc']}/{$queryParts['de']}/{$recordId}.json";
                                 break;
                             default:
                                 $cols[$k] = trim(strip_tags($v));

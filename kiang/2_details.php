@@ -7,37 +7,37 @@ $outputPath = "{$rootPath}/output/details";
 foreach (glob("{$rootPath}/output/lists/*.csv") AS $csvFile) {
     $cFh = fopen($csvFile, 'r');
     fgets($cFh, 512);
-    $pInfo = pathinfo($csvFile);
     while ($line = fgetcsv($cFh, 2048)) {
-        $pos = strpos($line[9], '?') + 1;
-        $posEnd = strpos($line[9], '&');
-        $recordId = substr($line[9], $pos + 3, $posEnd - $pos - 3);
+        $urlParts = parse_url($line[9]);
+        parse_str($urlParts['query'], $queryParts);
         $record = array();
-        echo "processing {$pInfo['filename']}/{$recordId}\n";
-        $recordPathPrefix = substr($recordId, -3);
-        $recordPath = "{$outputPath}/{$pInfo['filename']}/{$recordPathPrefix}";
+        $recordId = str_replace('/', '-', $queryParts['ab']);
+        $recordPath = "{$outputPath}/{$queryParts['ef']}/{$queryParts['bc']}/{$queryParts['de']}";
         $recordFile = "{$recordPath}/{$recordId}.json";
         if (!file_exists($recordFile)) {
             if (!file_exists($recordPath)) {
                 mkdir($recordPath, 0777, true);
             }
             $urls = array(
-                'data' => 'http://cdcb.judicial.gov.tw/abbs/wkw/WHD6K03.jsp?' . substr($line[9], $pos, $posEnd - $pos),
-                'staff' => 'http://cdcb.judicial.gov.tw/abbs/wkw/WHD6K04.jsp?' . substr($line[9], $posEnd + 1),
-                'office' => 'http://cdcb.judicial.gov.tw/abbs/wkw/WHD6K07.jsp?' . substr($line[9], $posEnd + 1),
+                'data' => 'http://cdcb.judicial.gov.tw/abbs/wkw/WHD6K03.jsp?' . $urlParts['query'],
+                'staff' => 'http://cdcb.judicial.gov.tw/abbs/wkw/WHD6K04.jsp?' . $urlParts['query'],
+                'office' => 'http://cdcb.judicial.gov.tw/abbs/wkw/WHD6K07.jsp?' . $urlParts['query'],
             );
+            $record['url'] = $urls;
+            $tmpPath = "{$rootPath}/tmp/{$queryParts['ef']}/{$queryParts['bc']}/{$queryParts['de']}";
+            if (!file_exists($tmpPath)) {
+                mkdir($tmpPath, 0777, true);
+            }
             foreach ($urls AS $fKey => $url) {
-                $tmpPath = "{$rootPath}/tmp/{$pInfo['filename']}/{$fKey}/{$recordPathPrefix}";
-                if (!file_exists($tmpPath)) {
-                    mkdir($tmpPath, 0777, true);
+                if (!file_exists("{$tmpPath}/{$recordId}_{$fKey}")) {
+                    echo "getting {$url}\n";
+                    file_put_contents("{$tmpPath}/{$recordId}_{$fKey}", file_get_contents($url));
                 }
-                if (!file_exists("{$tmpPath}/{$recordId}")) {
-                    file_put_contents("{$tmpPath}/{$recordId}", file_get_contents($url));
+                if (filesize("{$tmpPath}/{$recordId}_{$fKey}") <= 0) {
+                    unlink("{$tmpPath}/{$recordId}_{$fKey}");
+                    continue;
                 }
-                if(filesize("{$tmpPath}/{$recordId}") <= 0) {
-                    unlink("{$tmpPath}/{$recordId}"); continue;
-                }
-                $page = file_get_contents("{$tmpPath}/{$recordId}");
+                $page = file_get_contents("{$tmpPath}/{$recordId}_{$fKey}");
                 $page = Converter::iconv($page, 1);
                 switch ($fKey) {
                     case 'data':

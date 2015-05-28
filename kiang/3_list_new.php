@@ -76,7 +76,7 @@ while (false === $hitExisted) {
                 $headers[12] = '法院代碼';
                 $countHeaders = count($headers) - 2;
             } else {
-                if (count($cols) === $countHeaders) {
+                if (count($cols) === $countHeaders && false === $hitExisted) {
                     foreach ($cols AS $k => $v) {
                         switch ($k) {
                             case 9:
@@ -84,15 +84,12 @@ while (false === $hitExisted) {
                                 $cols[$k] = 'http://cdcb.judicial.gov.tw/abbs/wkw/' . substr($v, $vPos, strpos($v, '"', $vPos) - $vPos);
                                 break;
                             case 10:
-                                $pos = strpos($cols[9], '?') + 1;
-                                $posEnd = strpos($cols[9], '&');
-                                $cols[10] = substr($cols[9], $pos + 3, $posEnd - $pos - 3);
-                                $prefix = substr($cols[10], -3);
-                                $pos = strpos($cols[9], '&ef=') + 4;
-                                $posEnd = strpos($cols[9], '&', $pos);
-                                $cols[11] = $cols[10];
-                                $cols[12] = substr($cols[9], $pos, $posEnd - $pos);
-                                $cols[10] = "output/details/{$cols[12]}/{$prefix}/{$cols[10]}.json";
+                                $urlParts = parse_url($cols[9]);
+                                parse_str($urlParts['query'], $queryParts);
+                                $recordId = str_replace('/', '-', $queryParts['ab']);
+                                $cols[11] = $queryParts['ab'];
+                                $cols[12] = $courtVals[0];
+                                $cols[10] = "output/details/{$queryParts['ef']}/{$queryParts['bc']}/{$queryParts['de']}/{$recordId}.json";
                                 break;
                             default:
                                 $cols[$k] = trim(strip_tags($v));
