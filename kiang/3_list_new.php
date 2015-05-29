@@ -88,7 +88,7 @@ while (false === $hitExisted) {
                                 parse_str($urlParts['query'], $queryParts);
                                 $recordId = str_replace('/', '-', $queryParts['ab']);
                                 $cols[11] = $queryParts['ab'];
-                                $cols[12] = $courtVals[0];
+                                $cols[12] = $queryParts['ef'];
                                 $cols[10] = "output/details/{$queryParts['ef']}/{$queryParts['bc']}/{$queryParts['de']}/{$recordId}.json";
                                 break;
                             default:
