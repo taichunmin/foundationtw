@@ -39,20 +39,22 @@ $action = 'http://cdcb.judicial.gov.tw/abbs/wkw/WHD6K02.jsp';
 $method = 'POST';
 $ref = ' ';
 $dataBase = array(
-    'court' => '',
-    'classType' => 'RA001', //法人登記
+    'displayCourt' => '',
+    'crtid' => 'TPD',
+    'court' => 'TPD',
+    'kind' => '0',
+    'kind1' => '0',
     'year' => '',
     'word' => '',
     'no' => '',
     'recno' => '',
-    'kind' => '0',
     'Date1Start' => '',
     'Date1End' => '',
-    'kind1' => '0',
     'comname' => '',
     'pageSize' => '10',
-    'pageTotal' => 1,
-    'pageNow' => 1,
+    'pageTotal' => '1',
+    'addr' => '',
+    'pageNow' => '1',
 );
 
 $big5Errors = array(
@@ -67,7 +69,8 @@ foreach ($all_court as $court) {
         mkdir("{$rootPath}/tmp/{$courtVals[0]}", 0777, true);
     }
     $data = $dataBase;
-    $data['court'] = mb_convert_encoding($court, 'big5', 'utf8');
+    $data['displayCourt'] = mb_convert_encoding($courtVals[1], 'big5', 'utf8');
+    $data['crtid'] = $data['court'] = $courtVals[0];
     $fh = fopen("{$outputPath}/{$courtVals[0]}.csv", 'w');
     $headersWritten = false;
     for (; $data['pageNow'] <= $data['pageTotal']; $data['pageNow'] ++) {
@@ -78,7 +81,7 @@ foreach ($all_court as $court) {
             file_put_contents($cachedFile, serialize($response));
         }
         $page = unserialize(file_get_contents($cachedFile));
-        if ($data['pageNow'] === 1) {
+        if ($data['pageNow'] == 1) {
             $pos = strrpos($page['FILE'], 'name="pageTotal" value="');
             if (false !== $pos) {
                 $pos += 24;
