@@ -59,14 +59,15 @@ foreach (glob("{$rootPath}/output/lists/*.csv") AS $csvFile) {
                         break;
                     case 'staff':
                         $record['董監事'] = array();
+                        $page = str_replace(array(' ', '　'), '', $page);
                         $pos = strpos($page, '姓名</td>');
-                        $table = substr($page, $pos, strpos($page, '</table') - $pos);
+                        $table = substr($page, $pos, strpos($page, '</table', $pos) - $pos);
                         $tLines = explode('</tr>', $table);
                         foreach ($tLines AS $tLine) {
                             $tCols = explode('</td>', $tLine);
                             if (count($tCols) === 4) {
-                                $tCols[1] = str_replace(array(' ', '　'), '', trim(strip_tags($tCols[1])));
-                                $tCols[2] = str_replace(array(' ', '　'), '', trim(strip_tags($tCols[2])));
+                                $tCols[1] = trim(strip_tags($tCols[1]));
+                                $tCols[2] = trim(strip_tags($tCols[2]));
                                 $record['董監事'][] = array(
                                     $tCols[1], $tCols[2]
                                 );
