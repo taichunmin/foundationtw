@@ -28,11 +28,14 @@ $dataBase = array(
     'pageNow' => 1,
 );
 
-$hitExisted = false;
 $listFh = array();
 $currentTime = strtotime(date('Y-m') . '-01');
 $nextTime = strtotime(date('Y-m', strtotime('+1 month', $currentTime)) . '-01') - 1;
-while (false === $hitExisted) {
+
+/*
+ * get data of last 3 months
+ */
+for ($i = 0; $i < 3; $i++) {
     $cachedFolder = "{$rootPath}/tmp/" . date('Ym', $currentTime);
     if (!file_exists($cachedFolder)) {
         mkdir($cachedFolder, 0777, true);
@@ -44,12 +47,7 @@ while (false === $hitExisted) {
     $data['Date1End'] = date('Y', $nextTime) - 1911;
     $data['Date1End'] .= date('md', $nextTime);
     for (; $data['pageNow'] <= $data['pageTotal']; $data['pageNow'] ++) {
-        $cachedFile = "{$cachedFolder}/page_{$data['pageNow']}.html";
-        if (!file_exists($cachedFile)) {
-            $response = http($action, $ref, $method, $data, EXCL_HEAD);
-            file_put_contents($cachedFile, serialize($response));
-        }
-        $page = unserialize(file_get_contents($cachedFile));
+        $page = http($action, $ref, $method, $data, EXCL_HEAD);
         if ($data['pageNow'] === 1) {
             $pos = strrpos($page['FILE'], 'name="pageTotal" value="');
             if (false !== $pos) {
@@ -76,7 +74,7 @@ while (false === $hitExisted) {
                 $headers[12] = '法院代碼';
                 $countHeaders = count($headers) - 2;
             } else {
-                if (count($cols) === $countHeaders && false === $hitExisted) {
+                if (count($cols) === $countHeaders) {
                     foreach ($cols AS $k => $v) {
                         switch ($k) {
                             case 9:
@@ -106,8 +104,6 @@ while (false === $hitExisted) {
                             }
                         }
                         fputcsv($listFh[$cols[12]], $cols);
-                    } else {
-                        $hitExisted = true;
                     }
                 }
             }

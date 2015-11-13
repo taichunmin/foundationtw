@@ -7,6 +7,8 @@ exec("/bin/rm -Rf {$path}/tmp/" . date('Y') . '*');
 
 exec("cd {$path} && /usr/bin/git pull");
 
+exec("/usr/bin/php -q {$path}/kiang/4_remove_brokens.php");
+
 exec("/usr/bin/php -q {$path}/kiang/3_list_new.php");
 
 exec("/usr/bin/php -q {$path}/kiang/2_details.php");
